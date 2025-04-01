@@ -87,12 +87,12 @@ function SearchParamsComponent() {
 
   // Add the missing financeData
   const financeData = [
-    { month: 'Jan', revenue: 4000, expenses: 2400 },
-    { month: 'Feb', revenue: 3000, expenses: 1398 },
-    { month: 'Mar', revenue: 2000, expenses: 9800 },
-    { month: 'Apr', revenue: 2780, expenses: 3908 },
-    { month: 'May', revenue: 1890, expenses: 4800 },
-    { month: 'Jun', revenue: 2390, expenses: 3800 },
+    { month: 'Jan', revenue: 90000, expenses: 67123 },
+    { month: 'Feb', revenue: 110000, expenses: 72123 },
+    { month: 'Mar', revenue: 85000, expenses: 88000 },
+    { month: 'Apr', revenue: 130000, expenses: 55000 },
+    { month: 'May', revenue: 125000, expenses: 66000 },
+    { month: 'Jun', revenue: 154000, expenses: 80000 },
   ]
 
   const hrData = [
@@ -537,7 +537,7 @@ function SearchParamsComponent() {
                                     tickFormatter={(value) => `${value} Monate`}
                                   />
                                   <Tooltip 
-                                    formatter={(value, name) => {
+                                    formatter={(value: number, name: string) => {
                                       if (name === 'Budget') return `${(value / 1000).toFixed(0)}k€`;
                                       if (name === 'Dauer') return `${value} Monate`;
                                       return value;
@@ -615,7 +615,7 @@ function SearchParamsComponent() {
                                     ))}
                                   </Pie>
                                   <Tooltip 
-                                    formatter={(value, name, props) => [
+                                    formatter={(value: number, name: string, props: any) => [
                                       `${value}%`,
                                       `${name} (${props.payload.description})`
                                     ]}
