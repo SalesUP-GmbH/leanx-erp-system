@@ -1,7 +1,7 @@
 "use client"
 
 import withAuth from '@/utils/withAuth';
-import React, { useState, Suspense } from 'react'
+import React, { useState, Suspense, useEffect } from 'react'
 import { 
   User, 
   Building2, 
@@ -21,19 +21,57 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import DashboardLayout from "@/components/dashboard/dashboard-layout"
 
 export default withAuth(function ProfilePage() {
-  const [certificates, setCertificates] = useState([
-    { name: 'AWS Certified Solutions Architect', year: '2023', issuer: 'Amazon Web Services' },
-    { name: 'Certified Scrum Master', year: '2022', issuer: 'Scrum Alliance' }
-  ])
+  const [employeeData, setEmployeeData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [projects, setProjects] = useState([
-    { 
-      name: 'ERP System Implementation', 
-      company: 'Tech Corp GmbH',
-      duration: '8 months',
-      description: 'Led the implementation of a company-wide ERP system'
-    }
-  ])
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      try {
+        const response = await fetch('https://lean-x.de/api/employee/self', {
+          credentials: 'include' // Important for sending cookies
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch employee data');
+        }
+        
+        const data = await response.json();
+        setEmployeeData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployeeData();
+  }, []);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">Error!</strong>
+            <span className="block sm:inline"> {error}</span>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -58,7 +96,9 @@ export default withAuth(function ProfilePage() {
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-20 w-20">
                     <AvatarImage src="/placeholder.svg" />
-                    <AvatarFallback>NK</AvatarFallback>
+                    <AvatarFallback>
+                      {employeeData?.firstName?.[0]}{employeeData?.lastName?.[0]}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <CardTitle>Persönliche Informationen</CardTitle>
@@ -70,19 +110,22 @@ export default withAuth(function ProfilePage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium">Vorname</label>
-                    <Input defaultValue="Noah" />
+                    <Input defaultValue={employeeData?.firstName} readOnly />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Nachname</label>
-                    <Input defaultValue="K" />
+                    <Input defaultValue={employeeData?.lastName} readOnly />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Email</label>
-                    <Input defaultValue="frontend@example.com" />
+                    <Input defaultValue={employeeData?.email} readOnly />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Telefon</label>
-                    <Input defaultValue="+49 123 456789" />
+                    <label className="text-sm font-medium">Manager</label>
+                    <Input 
+                      defaultValue={`${employeeData?.managerFirstName} ${employeeData?.managerLastName}`} 
+                      readOnly 
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -98,19 +141,24 @@ export default withAuth(function ProfilePage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium">Position</label>
-                    <Input defaultValue="Senior Consultant" />
+                    <Input defaultValue={employeeData?.jobTitle} readOnly />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Abteilung</label>
-                    <Input defaultValue="IT Consulting" />
+                    <Input defaultValue={employeeData?.department} readOnly />
                   </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Fachgebiete</label>
-                  <Textarea 
-                    defaultValue="ERP-Systeme, Prozessoptimierung, Change Management, Agile Methodiken"
-                    className="mt-1"
-                  />
+                  <div>
+                    <label className="text-sm font-medium">Beschäftigungsart</label>
+                    <Input defaultValue={employeeData?.employmentType} readOnly />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Status</label>
+                    <Input defaultValue={employeeData?.employmentStatus} readOnly />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Startdatum</label>
+                    <Input defaultValue={employeeData?.startDate} readOnly />
+                  </div>
                 </div>
               </CardContent>
             </Card>
