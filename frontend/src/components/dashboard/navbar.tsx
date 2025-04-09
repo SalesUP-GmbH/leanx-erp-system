@@ -17,12 +17,43 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+interface EmployeeData {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isFirstLoad, setIsFirstLoad] = useState(searchParams.get('fromLogin') === 'true');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      try {
+        const response = await fetch('https://lean-x.de/api/employee/self', {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch employee data');
+        }
+        
+        const data = await response.json();
+        setEmployeeData(data);
+      } catch (err) {
+        console.error('Error fetching employee data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployeeData();
+  }, []);
 
   useEffect(() => {
     if (isFirstLoad) {
@@ -77,7 +108,7 @@ export default function Navbar() {
             <div className={`relative h-9 w-9 overflow-hidden rounded-full bg-gradient-to-br from-primary to-primary/60 ${
               isFirstLoad ? "bg-white/20" : ""
             }`}>
-              <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">X</div>
+              
             </div>
             <span className={`font-bold text-xl hidden sm:inline-block text-gray-900 ${
               isFirstLoad ? "text-white transition-colors duration-1000" : ""
@@ -128,7 +159,11 @@ export default function Navbar() {
                 <Avatar className="h-9 w-9 border-2 border-primary/20">
                   <AvatarImage src="/placeholder.svg?height=36&width=36" alt="User" />
                   <AvatarFallback className="bg-muted text-gray-900">
-                    NK
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      employeeData ? `${employeeData.firstName[0]}${employeeData.lastName[0]}` : 'NK'
+                    )}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -136,8 +171,20 @@ export default function Navbar() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Noah K</p>
-                  <p className="text-xs leading-none text-muted-foreground">frontend@example.com</p>
+                  <p className="text-sm font-medium leading-none">
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      employeeData ? `${employeeData.firstName} ${employeeData.lastName}` : 'Noah K'
+                    )}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      employeeData?.email || 'frontend@example.com'
+                    )}
+                  </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
