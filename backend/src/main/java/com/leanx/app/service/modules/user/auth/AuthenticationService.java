@@ -10,12 +10,12 @@ import com.leanx.app.model.entity.User;
 import com.leanx.app.model.entity.User.UserStatus;
 import com.leanx.app.repository.PasswordHistoryViewRepository;
 import com.leanx.app.repository.base.ViewRepository;
+import com.leanx.app.service.modules.system.PasswordService;
 import com.leanx.app.service.modules.user.admin.UserService;
 import com.leanx.app.service.modules.user.auth.exceptions.AccountDeactivatedException;
 import com.leanx.app.service.modules.user.auth.exceptions.AccountLockedException;
 import com.leanx.app.service.modules.user.auth.exceptions.FirstLoginException;
 import com.leanx.app.service.modules.user.auth.exceptions.PasswordExpiredException;
-import com.leanx.app.utils.PasswordUtils;
 
 /**
  * The {@code AuthenticationService} class provides functionalities related to user authentication,
@@ -27,7 +27,7 @@ public class AuthenticationService {
     private static final Logger logger = Logger.getLogger(ViewRepository.class.getName());
     
     private final UserService userService;
-    private final PasswordUtils passwordUtils;
+    private final PasswordService passwordService;
 
     /**
      * Constructs an instance of {@code AuthenticationService}.
@@ -35,7 +35,7 @@ public class AuthenticationService {
      */
     public AuthenticationService() {
         this.userService = new UserService();
-        this.passwordUtils = new PasswordUtils();
+        this.passwordService = new PasswordService();
     }
 
 
@@ -79,7 +79,7 @@ public class AuthenticationService {
                     return -1;
                 }
 
-                if(user.getLockUntil() != null && System.currentTimeMillis() < user.getLockUntil().getTime() + passwordUtils.getLockoutDuration() * 60 * 1000) {
+                if(user.getLockUntil() != null && System.currentTimeMillis() < user.getLockUntil().getTime() + passwordService.getLockoutDuration() * 60 * 1000) {
                     logger.log(Level.WARNING, "Failed login attempt due to user being temporarily locked: {0}", username);
                     userService.updateNumFailedLoginAttempts(user.getId(), 2, user.getNumFailedLoginAttempts() + 1);
                     throw new AccountLockedException("Too many failed login attempts! Your account is temporarily locked. Please try again later or contact support.");
@@ -90,10 +90,10 @@ public class AuthenticationService {
                 user.setNumFailedLoginAttempts(0);
             }
 
-            if (!passwordUtils.checkPassword(password, user.getPasswordHash())) {  
+            if (!passwordService.checkPassword(password, user.getPasswordHash())) {  
                 userService.updateNumFailedLoginAttempts(user.getId(), 2, user.getNumFailedLoginAttempts() + 1);
 
-                if (user.getNumFailedLoginAttempts() + 1 >= passwordUtils.getMaxNumFailedAttempts()) {
+                if (user.getNumFailedLoginAttempts() + 1 >= passwordService.getMaxNumFailedAttempts()) {
                     logger.log(Level.WARNING, "User locked due to exceeding allowed number of failed login attempts: {0}", username);
                     userService.lockUser(user.getId(), 2);
                     return -1;
@@ -152,7 +152,7 @@ public class AuthenticationService {
             throw new IllegalArgumentException("Passwords do not match!");
         }
 
-        if (!passwordUtils.isValidPassword(newPassword)) {
+        if (!passwordService.isValidPassword(newPassword)) {
             throw new IllegalArgumentException("New password does not meet security requirements");
         }
 
@@ -164,7 +164,7 @@ public class AuthenticationService {
             userService.setIsFirstLoginFalse(user.getId(), 2);
         }
 
-        String newPasswordHash = passwordUtils.hashPassword(newPassword);
+        String newPasswordHash = passwordService.hashPassword(newPassword);
         return userService.updatePassword(user.getId(), changedBy, newPasswordHash);
     }
 
@@ -177,10 +177,10 @@ public class AuthenticationService {
      * @throws SQLException if a database error occurs while retrieving the password history.
      */
     public boolean inRecentPasswordHistory(Integer userId, String newPassword) throws SQLException {
-        List<String> passwordHistory = PasswordHistoryViewRepository.loadPasswordHistory(userId, passwordUtils.getHistorySize());
+        List<String> passwordHistory = PasswordHistoryViewRepository.loadPasswordHistory(userId, passwordService.getHistorySize());
         boolean found = false;
         for (String hash : passwordHistory) {
-            if(passwordUtils.checkPassword(newPassword, hash)) {
+            if(passwordService.checkPassword(newPassword, hash)) {
                 found = true;
             }
         }

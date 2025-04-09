@@ -30,7 +30,7 @@ public class SecurityConfig {
      * automatically reflect those changes. A mechanism for reloading these
      * settings would be required for dynamic updates.
      */
-    public static Map<String, String> PASSWORD_SETTINGS; // current password settings -> needs to be updated if dynamically changed during runtime! (lazy loading)
+    public static Map<String, String> PASSWORD_SETTINGS; 
 
     /**
      * Static initializer block that loads the password policy settings from the

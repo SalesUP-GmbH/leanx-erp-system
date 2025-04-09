@@ -1,4 +1,4 @@
-package com.leanx.app.utils;
+package com.leanx.app.service.modules.system;
 
 import java.security.SecureRandom;
 import java.util.Map;
@@ -9,11 +9,11 @@ import org.mindrot.jbcrypt.BCrypt;
 import com.leanx.app.service.modules.system.configs.SecurityConfig;
 
 /**
- * Utility class for handling password-related operations, including validation,
+ * Service class for handling password-related operations, including validation,
  * generation, hashing, and checking against a password policy defined in
  * the {@link SecurityConfig}.
  */
-public class PasswordUtils {
+public class PasswordService {
 
     private final Map<String, String> PASSWORD_SETTINGS = SecurityConfig.PASSWORD_SETTINGS;
 
@@ -31,7 +31,7 @@ public class PasswordUtils {
      * Constructs a new {@code PasswordUtils} instance, initializing password
      * policy settings from the {@link SecurityConfig#PASSWORD_SETTINGS} map.
      */
-    public PasswordUtils() {
+    public PasswordService() {
         this.maxNumFailedAttempts = Integer.parseInt(PASSWORD_SETTINGS.get("password.num_failed_attempts_before_lockout"));
         this.historySize = Integer.parseInt(PASSWORD_SETTINGS.get("password.history_size"));
         this.minLength = Integer.parseInt(PASSWORD_SETTINGS.get("password.min_length"));

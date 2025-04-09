@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import com.leanx.app.model.entity.Employee;
 import com.leanx.app.repository.EmployeeRepository;
+import com.leanx.app.repository.base.StoredProceduresRepository;
 
 /**
  * Service class for managing employee-related operations.
@@ -19,6 +20,7 @@ public class EmployeeService {
 
     private static final Logger logger = Logger.getLogger(EmployeeService.class.getName());
 
+    private final StoredProceduresRepository storedProceduresRepository = new StoredProceduresRepository();
     private final EmployeeRepository employeeRepository = new EmployeeRepository();
 
     /**
@@ -77,6 +79,34 @@ public class EmployeeService {
     }
 
     /**
+     * Retrieves all employee records from the database whose start date is set to the current date.
+     *
+     * @return A list containing all {@link Employee} objects in the system that start today.
+     * Returns an empty list if no employees exist.
+     * @throws SQLException If a database access error occurs while fetching the employees.
+     */
+    public List<Employee> getNewEmployees() throws SQLException  {
+        try {
+            return employeeRepository.findStartingToday();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to access the database: {0}", e);
+            throw e;
+        }
+    }
+
+    public void createUserForNewEmployee(String username, String passwordHash, Integer employeeId) throws IllegalArgumentException {
+        if (employeeId == null || employeeId <= 0) {
+            throw new IllegalArgumentException("Illegal argument: employeeId cannot be null or less then 1");
+        }
+
+        boolean success = storedProceduresRepository.callCreateNewUserAccount(username, passwordHash, employeeId);
+
+        if (!success) {
+            logger.log(Level.SEVERE, "Failed to create a user for employee with ID: {0}", employeeId);
+        }
+    }
+
+    /**
      * Retrieves a specific employee record based on their unique ID.
      *
      * @param employeeId The ID of the employee to retrieve.
@@ -87,7 +117,7 @@ public class EmployeeService {
     public Employee getEmployeeById(Integer employeeId) throws IllegalArgumentException, SQLException {
         try {
             if (employeeId == null || employeeId <= 0) {
-                throw new IllegalArgumentException("Illegal argument: employeeId cannot be null or non-positive!");
+                throw new IllegalArgumentException("Illegal argument: employeeId cannot be null or less then 1");
             }
 
             return employeeRepository.read(employeeId);
