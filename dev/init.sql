@@ -821,4 +821,17 @@ VALUES (2, 2, 1);
 INSERT INTO user_roles (user_id, role_id, created_by) 
 VALUES (3, 1, 1);
 
+-- test employee
+INSERT INTO employees (first_name, last_name, email, manager_id, job_title, department, employment_type, employment_status, hire_date, start_date, created_by) 
+VALUES ('Janis', 'Grüttmüller', 's_gruettmueller22@stud.hwr-berlin.de', 1, 'Senior Developer', 'IT', 'FULL_TIME', 'ACTIVE', '2025-03-01', DATE_ADD(CURDATE(), INTERVAL 0 DAY), 3);
+
+INSERT INTO users (name, status, type, password_hash, is_first_login, password_expiry_date, created_by) 
+VALUES ('admin', 'ACTIVE', 'ADMIN', '$2a$10$Z6v/1IM1G2x6e47i1HnhvuWAmNgTETU7RiYzc4kRxu7LdNy1.PARu', false, DATE_ADD(CURDATE(), INTERVAL 90 DAY), 3);
+
+INSERT INTO user_employee_link (user_id, employee_id)
+VALUES (4, 1);
+
+INSERT INTO user_roles (user_id, role_id, created_by)
+VALUES (4, 3, 1);
+
 COMMIT;

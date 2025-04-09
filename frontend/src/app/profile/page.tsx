@@ -1,7 +1,7 @@
 "use client"
 
 import withAuth from '@/utils/withAuth';
-import React, { useState, Suspense } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { 
   User, 
   Building2, 
@@ -24,16 +24,32 @@ export default withAuth(function ProfilePage() {
   const [certificates, setCertificates] = useState([
     { name: 'AWS Certified Solutions Architect', year: '2023', issuer: 'Amazon Web Services' },
     { name: 'Certified Scrum Master', year: '2022', issuer: 'Scrum Alliance' }
-  ])
+  ]);
 
   const [projects, setProjects] = useState([
-    { 
-      name: 'ERP System Implementation', 
+    {
+      name: 'ERP System Implementation',
       company: 'Tech Corp GmbH',
       duration: '8 months',
       description: 'Led the implementation of a company-wide ERP system'
     }
-  ])
+  ]);
+
+  const [profileData, setProfileData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchEmployeeProfile = async () => {
+      try {
+        const response = await fetch('/api/employee/self');
+        const data = await response.json();
+        setProfileData(data);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+    fetchEmployeeProfile();
+  }, []);
+
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -47,7 +63,7 @@ export default withAuth(function ProfilePage() {
             </div>
             <Button>
               <Save className="mr-2 h-4 w-4" />
-              Änderungen speichern
+              Änderung anfragen
             </Button>
           </div>
 
@@ -58,7 +74,9 @@ export default withAuth(function ProfilePage() {
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-20 w-20">
                     <AvatarImage src="/placeholder.svg" />
-                    <AvatarFallback>NK</AvatarFallback>
+                    <AvatarFallback>
+                      {profileData?.firstName?.[0] || '?'}{profileData?.lastName?.[0] || ''}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <CardTitle>Persönliche Informationen</CardTitle>
@@ -67,24 +85,60 @@ export default withAuth(function ProfilePage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="text-sm font-medium">Vorname</label>
-                    <Input defaultValue="Noah" />
+                {profileData ? (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="text-sm font-medium">Name</label>
+                      <Input value={decodeURIComponent(profileData?.firstName || '') + ' ' + decodeURIComponent(profileData?.lastName || '')} readOnly />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Email</label>
+                      <Input value={profileData?.email} readOnly />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Beschäftigungsart</label>
+                      <Input
+                        value={
+                          profileData?.employmentType === 'FULL_TIME'
+                            ? 'Vollzeit'
+                            : profileData?.employmentType === 'PART_TIME'
+                            ? 'Teilzeit'
+                            : profileData?.employmentType === 'INTERN'
+                            ? 'Praktikant'
+                            : profileData?.employmentType || ''
+                        }
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Status</label>
+                      <Input
+                        value={
+                          profileData?.employmentStatus === 'ACTIVE'
+                            ? 'Aktiv'
+                            : profileData?.employmentStatus === 'TERMINATED'
+                            ? 'Beendet'
+                            : profileData?.employmentStatus === 'RESIGNED'
+                            ? 'Gekündigt'
+                            : profileData?.employmentStatus === 'RETIRED'
+                            ? 'In Rente'
+                            : profileData?.employmentStatus === 'ON_LEAVE'
+                            ? 'Beurlaubt'
+                            : profileData?.employmentStatus === 'SUSPENDED'
+                            ? 'Suspendiert'
+                            : profileData?.employmentStatus || ''
+                        }
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Startdatum</label>
+                      <Input value={profileData?.startDate ? new Date(profileData.startDate).toLocaleDateString() : ''} readOnly />
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium">Nachname</label>
-                    <Input defaultValue="K" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Email</label>
-                    <Input defaultValue="frontend@example.com" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Telefon</label>
-                    <Input defaultValue="+49 123 456789" />
-                  </div>
-                </div>
+                ) : (
+                  <div>Lade Profildaten...</div>
+                )}
               </CardContent>
             </Card>
 
@@ -98,17 +152,21 @@ export default withAuth(function ProfilePage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium">Position</label>
-                    <Input defaultValue="Senior Consultant" />
+                    <Input value={profileData?.jobTitle || ''} readOnly />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Abteilung</label>
-                    <Input defaultValue="IT Consulting" />
+                    <label className="text-sm font-medium">Bereich</label>
+                    <Input value={profileData?.department || ''} readOnly />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Manager</label>
+                    <Input value={decodeURIComponent(profileData?.managerFirstName || '') + ' ' + decodeURIComponent(profileData?.managerLastName || '')} readOnly />
                   </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Fachgebiete</label>
                   <Textarea 
-                    defaultValue="ERP-Systeme, Prozessoptimierung, Change Management, Agile Methodiken"
+                    defaultValue=""
                     className="mt-1"
                   />
                 </div>

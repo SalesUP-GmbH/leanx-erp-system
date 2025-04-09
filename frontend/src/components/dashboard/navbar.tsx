@@ -33,6 +33,21 @@ export default function Navbar() {
     }
   }, [isFirstLoad]);
 
+  const [profileData, setProfileData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchEmployeeProfile = async () => {
+      try {
+        const response = await fetch('/api/employee/self');
+        const data = await response.json();
+        setProfileData(data);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+    fetchEmployeeProfile();
+  }, []);
+
   const navItems = [
     { id: "overview", label: "Übersicht", icon: CreditCard, href: "/dashboard" },
     { id: "finance", label: "Finanzen", icon: CreditCard, href: "/finance" },
@@ -128,7 +143,7 @@ export default function Navbar() {
                 <Avatar className="h-9 w-9 border-2 border-primary/20">
                   <AvatarImage src="/placeholder.svg?height=36&width=36" alt="User" />
                   <AvatarFallback className="bg-muted text-gray-900">
-                    NK
+                    {profileData?.firstName?.[0] || '?'}{profileData?.lastName?.[0] || ''}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -136,8 +151,8 @@ export default function Navbar() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Noah K</p>
-                  <p className="text-xs leading-none text-muted-foreground">frontend@example.com</p>
+                  <p className="text-sm font-medium leading-none">{profileData?.firstName || 'none'} {profileData?.lastName?.[0] || ''}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{profileData?.email || 'none'}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

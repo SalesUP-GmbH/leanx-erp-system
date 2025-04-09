@@ -1,9 +1,5 @@
 #!/bin/bash
-
 set -e
-
-# Build backend with Maven
-mvn clean package
 
 # Navigate to the directory containing docker-compose.yml
 cd "$(dirname "$0")"
