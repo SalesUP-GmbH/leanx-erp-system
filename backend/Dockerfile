@@ -6,7 +6,7 @@ COPY src ./src
 RUN mvn clean package
 
 # Stage 2: Deploy the WAR to Tomcat
-FROM tomcat:11.0-jdk17-openjdk
+FROM tomcat:10.1-jdk17-openjdk
 WORKDIR /usr/local/tomcat/webapps
 COPY --from=builder /app/target/*.war ROOT.war
 
