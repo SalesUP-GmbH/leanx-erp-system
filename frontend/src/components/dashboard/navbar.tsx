@@ -92,7 +92,7 @@ export default function Navbar() {
             <div className={`relative h-9 w-9 overflow-hidden rounded-full bg-gradient-to-br from-primary to-primary/60 ${
               isFirstLoad ? "bg-white/20" : ""
             }`}>
-              <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">X</div>
+              {/*<div className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">X</div>*/}
             </div>
             <span className={`font-bold text-xl hidden sm:inline-block text-gray-900 ${
               isFirstLoad ? "text-white transition-colors duration-1000" : ""
