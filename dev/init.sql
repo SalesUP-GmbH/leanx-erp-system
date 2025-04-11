@@ -805,7 +805,7 @@ VALUES
     ('password.history_size', '5', 'PASSWORD_SETTINGS', 'Number of previous passwords to check for reuse', 1),
     ('password.expiry_period', '90', 'PASSWORD_SETTINGS', 'Password expiry period in days', 1),
     ('password.num_failed_attempts_before_lockout', '5', 'PASSWORD_SETTINGS', 'Number of failed login attempts before locking the account', 1),
-    ('password.lockout_duration', '30', 'PASSWORD_SETTINGS', 'Duration of account lockout in minutes', 1);
+    ('password.lockout_duration', '1', 'PASSWORD_SETTINGS', 'Duration of account lockout in minutes', 1);
 
 /* ---------------------------------- Create Default User for manual System Setup ----------------------------------------- */
 
