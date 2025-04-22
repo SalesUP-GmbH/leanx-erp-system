@@ -3,6 +3,12 @@
 ## Introduction
 
 LeanX is a lightweight ERP system designed for efficient management of core business processes. This document provides an overview of the system's architecture, API, setup and database.
+The productive environment is accessible under [www.lean-x.de](https://www.lean-x.de) or [lean-x.de](https://lean-x.de).
+
+For demonstration purposes use the following user to gain access to the LeanX environment:
+
+- Username: DEFAULT_USR
+- Password: initERP@2025
 
 ## Architecture
 
