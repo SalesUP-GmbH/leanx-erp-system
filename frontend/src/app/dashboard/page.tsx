@@ -96,11 +96,11 @@ function SearchParamsComponent() {
   ]
 
   const hrData = [
-    { department: 'Vertrieb', employees: 100, turnover: 5 },
-    { department: 'Beratung', employees: 80, turnover: 8 },
-    { department: 'Marketing', employees: 40, turnover: 3 },
-    { department: 'HR', employees: 20, turnover: 2 },
-    { department: 'Finanzen', employees: 30, turnover: 4 },
+    { department: 'Beratung', employees: 6, turnover: 5 },
+    { department: 'Marketing', employees: 4, turnover: 8 },
+    { department: 'Finanzen', employees: 3, turnover: 3 },
+    { department: 'Vertrieb', employees: 1, turnover: 2 },
+    { department: 'HR', employees: 2, turnover: 4 },
   ]
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
@@ -475,13 +475,13 @@ function SearchParamsComponent() {
                     </CardHeader>
                     <CardContent className="h-[400px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <RechartsLineChart data={hrData}>
+                        <RechartsBarChart data={hrData}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="department" />
                           <YAxis />
                           <Tooltip />
-                          <Line type="monotone" dataKey="turnover" stroke="#82ca9d" name="Fluktuation" />
-                        </RechartsLineChart>
+                          <Bar dataKey="turnover" fill="#82ca9d" name="Fluktuation" />
+                        </RechartsBarChart>
                       </ResponsiveContainer>
                     </CardContent>
                   </Card>
